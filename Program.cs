@@ -136,6 +136,7 @@ class Program
         byte[] tokenRequestBytes = Encoding.ASCII.GetBytes(tokenRequestBody);
         tokenRequest.ContentLength = tokenRequestBytes.Length;
         Stream stream = tokenRequest.GetRequestStream();
+
         stream.Write(tokenRequestBytes, 0, tokenRequestBytes.Length);
         stream.Close();
 
@@ -150,7 +151,6 @@ class Program
 
             // converts to dictionary
             Dictionary<string, string> tokenEndpointDecoded = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
-
             string accessToken = tokenEndpointDecoded["access_token"];
             return accessToken;
         }
