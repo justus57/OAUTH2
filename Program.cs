@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using GemBox.Email;
 using GemBox.Email.Smtp;
 
@@ -13,33 +14,64 @@ class Program
 {
     static void Main()
     {
-        // If using the Professional version, put your serial key below.
-        ComponentInfo.SetLicense("FREE-LIMITED-KEY");
+        string url = @"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize?
+        client_id = 768aaa2d-b574-4d8f-8efa-0f71c3bc18c4
+            & response_type = code % 20id_token
+            & redirect_uri = https://businesscentral.dynamics.com/
+            & response_mode = fragment
+            & scope = openid % 20offline_access % 20https % 3A % 2F % 2Fgraph.microsoft.com % 2Fuser.read
+            & state = 12345
+            & nonce = abcde
+            & code_challenge = YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl
+            & code_challenge_method = S25";
+        string code = "768aaa2d-b574-4d8f-8efa-0f71c3bc18c4";
+        string clientID = "768aaa2d-b574-4d8f-8efa-0f71c3bc18c4";
+        string clientSecret = "iFi8Q~MJmR6G0unK1N-DxiUIGjY9CgD2ClcmRbnc";
+        string codeVerifier = "https://login.windows.net/4dfedb10-35ca-4e46-9c2a-0fa40d6968c0/oauth2/token?resource=https://api.businesscentral.dynamics.com";
+        string redirectURI = "https://businesscentral.dynamics.com/";
 
-        const string clientID = "<CLIENT-ID>";
-        const string clientSecret = "<CLIENT-SECRET>";
-
-        // Generates code verifier value.
-        string codeVerifier = RandomDataBase64Url(32);
-
-        // Creates a redirect URI using an available port on the loopback address.
-        string redirectURI = string.Format("http://{0}:{1}/", IPAddress.Loopback, GetRandomUnusedPort());
-        Console.WriteLine("redirect URI: " + redirectURI);
-
-        // Extracts the authorization code.
-        var authorizationCode = GetAuthorizationCode(clientID, codeVerifier, redirectURI);
-
-        // Obtains the access token from the authorization code.
-        string accessToken = GetAccessToken(authorizationCode, clientID, clientSecret, codeVerifier, redirectURI);
-
-        // Uses the access token to authenticate to a user's Gmail account
-        using (var smtp = new GemBox.Email.Smtp.SmtpClient("<ADDRESS> (e.g. smtp.gmail.com)"))
-        {
-            smtp.Connect();
-            smtp.Authenticate("<USERNAME>", accessToken, SmtpAuthentication.XOAuth2);
-            Console.WriteLine("Authenticated.");
-        }
+       string valu = GenerateRequestPostData("iFi8Q~MJmR6G0unK1N-DxiUIGjY9CgD2ClcmRbnc", "https://login.windows.net/4dfedb10-35ca-4e46-9c2a-0fa40d6968c0/oauth2/authorize?resource=https://api.businesscentral.dynamics.com", "https://businesscentral.dynamics.com/");
+        GetAccessToken(code, clientID, clientSecret, codeVerifier, redirectURI);
+        Console.ReadKey();
     }
+    public static string GenerateRequestPostData(string appSecret, string authCode, string callbackUrl)
+    {
+        return String.Format("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion={1}&redirect_uri={2}",
+                    HttpUtility.UrlEncode(appSecret),
+                    HttpUtility.UrlEncode(authCode),
+                    callbackUrl
+             );
+    }
+
+    //static void Main()
+    //{
+    //    // If using the Professional version, put your serial key below.
+    //    ComponentInfo.SetLicense("FREE-LIMITED-KEY");
+
+    //    const string clientID = "<CLIENT-ID>";
+    //    const string clientSecret = "<CLIENT-SECRET>";
+
+    //    // Generates code verifier value.
+    //    string codeVerifier = RandomDataBase64Url(32);
+
+    //    // Creates a redirect URI using an available port on the loopback address.
+    //    string redirectURI = string.Format("http://{0}:{1}/", IPAddress.Loopback, GetRandomUnusedPort());
+    //    Console.WriteLine("redirect URI: " + redirectURI);
+
+    //    // Extracts the authorization code.
+    //    var authorizationCode = GetAuthorizationCode(clientID, codeVerifier, redirectURI);
+
+    //    // Obtains the access token from the authorization code.
+    //    string accessToken = GetAccessToken(authorizationCode, clientID, clientSecret, codeVerifier, redirectURI);
+
+    //    // Uses the access token to authenticate to a user's Gmail account
+    //    using (var smtp = new GemBox.Email.Smtp.SmtpClient("<ADDRESS> (e.g. smtp.gmail.com)"))
+    //    {
+    //        smtp.Connect();
+    //        smtp.Authenticate("<USERNAME>", accessToken, SmtpAuthentication.XOAuth2);
+    //        Console.WriteLine("Authenticated.");
+    //    }
+    //}
 
     static string GetAuthorizationCode(string clientID, string codeVerifier, string redirectURI)
     {
