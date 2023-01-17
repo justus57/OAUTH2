@@ -14,16 +14,9 @@ class Program
 {
     static void Main()
     {
-        string url = @"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize?
-        client_id = 768aaa2d-b574-4d8f-8efa-0f71c3bc18c4
-            & response_type = code % 20id_token
-            & redirect_uri = https://businesscentral.dynamics.com/
-            & response_mode = fragment
-            & scope = openid % 20offline_access % 20https % 3A % 2F % 2Fgraph.microsoft.com % 2Fuser.read
-            & state = 12345
-            & nonce = abcde
-            & code_challenge = YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl
-            & code_challenge_method = S25";
+
+        // Extracts the authorization code.
+       
         string code = "768aaa2d-b574-4d8f-8efa-0f71c3bc18c4";
         string clientID = "768aaa2d-b574-4d8f-8efa-0f71c3bc18c4";
         string clientSecret = "iFi8Q~MJmR6G0unK1N-DxiUIGjY9CgD2ClcmRbnc";
@@ -31,6 +24,7 @@ class Program
         string redirectURI = "https://businesscentral.dynamics.com/";
 
        string valu = GenerateRequestPostData("iFi8Q~MJmR6G0unK1N-DxiUIGjY9CgD2ClcmRbnc", "https://login.windows.net/4dfedb10-35ca-4e46-9c2a-0fa40d6968c0/oauth2/authorize?resource=https://api.businesscentral.dynamics.com", "https://businesscentral.dynamics.com/");
+        //var authorizationCode = GetAuthorizationCode(clientID, codeVerifier, redirectURI);
         GetAccessToken(code, clientID, clientSecret, codeVerifier, redirectURI);
         Console.ReadKey();
     }
@@ -87,7 +81,8 @@ class Program
         http.Start();
 
         // Creates the OAuth 2.0 authorization request.
-        string authorizationRequestURI = "https://accounts.google.com/o/oauth2/v2/auth";
+        //string authorizationRequestURI = "https://accounts.google.com/o/oauth2/v2/auth";
+        string authorizationRequestURI = "https://login.windows.net/4dfedb10-35ca-4e46-9c2a-0fa40d6968c0/oauth2/authorize?resource=https://api.businesscentral.dynamics.com";
         string scope = "https://mail.google.com/";
 
         string authorizationRequest = string.Format("{0}?response_type=code&scope={6}&redirect_uri={1}&client_id={2}&state={3}&code_challenge={4}&code_challenge_method={5}",
@@ -151,7 +146,7 @@ class Program
         Console.WriteLine("Exchanging code for tokens...");
 
         // builds the  request
-        string tokenRequestURI = "https://www.googleapis.com/oauth2/v4/token";
+        string tokenRequestURI = "https://businesscentral.dynamics.com/oauth2/v4/token";
         string tokenRequestBody = string.Format("code={0}&redirect_uri={1}&client_id={2}&code_verifier={3}&client_secret={4}&grant_type=authorization_code",
             code,
             Uri.EscapeDataString(redirectURI),
